@@ -15,6 +15,7 @@ router.route('/users/login')
 router.route('/users/:id/cart')
     .post(verifyToken, collectionValidation, tryCatch(Users.addToCart))
     .delete(verifyToken, collectionValidation, tryCatch(Users.removeFromCart))
+    
 
 router.route('/users/:id/wishlist')
     .post(verifyToken, collectionValidation, tryCatch(Users.addToWishlist))
