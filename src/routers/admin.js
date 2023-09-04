@@ -7,4 +7,7 @@ const {tryCatch} = require('../middlewares/tryCatch')
 router.route('/create-dealer')
 .post(tryCatch(Admin.registerDealer)) 
 
+router.route('/test')
+.get(tryCatch(Admin.test))
+
 module.exports = router

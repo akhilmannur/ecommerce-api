@@ -50,5 +50,12 @@ module.exports = {
                 apiKey: dealerApiKey
             }
         })
+    },
+
+    test: (req, res) => {
+        res.json({
+            status: 'Success',
+            message: 'API tested Successfully!'
+        })
     }
 }
