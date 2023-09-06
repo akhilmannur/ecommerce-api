@@ -33,7 +33,7 @@ module.exports = {
 
         const dealerApiKey = createDealer._id.toString()
 
-        await mongoose.connect(`mongodb://127.0.0.1:/ecom-${dealerApiKey}`)
+        await mongoose.connect(`${process.env.MONGODB_URL}/ecom-${dealerApiKey}`)
 
         const createAnUser = await User.create({
             username: 'admin',
