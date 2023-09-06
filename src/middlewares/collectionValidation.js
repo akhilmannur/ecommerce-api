@@ -20,7 +20,7 @@ module.exports = {
             }
 
             await mongoose.connection.close();
-            await mongoose.connect(`mongodb://127.0.0.1:/ecom-${apiKey}`)
+            await mongoose.connect(`${process.env.MONGODB_URL}/ecom-${apiKey}`)
         
             next()
           } catch (error) { 
