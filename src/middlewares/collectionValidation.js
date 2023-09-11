@@ -7,10 +7,11 @@ const switchDB = require('../services/switchDB')
 module.exports = {
     collectionValidation: async (req, res, next) => {
         try {
-            const { apiKey } = req.body
+            const apiKey = req.body.apiKey ?? req.user.id
+          
             await mongoose.connect(process.env.MONGODB_URL);
-            
-            const adminDb = mongoose.connection.db.admin();
+           
+            const adminDb = mongoose.connection.db.admin(); // NOTE: Showing "Database does not exist with the API key provided" debug apikey
             const databases = await adminDb.listDatabases();
             const databaseExists = databases.databases.find(db => db.name === `ecom-${apiKey}`);
             

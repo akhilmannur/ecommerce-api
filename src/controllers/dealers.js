@@ -1,15 +1,47 @@
 const ProductModel = require('../models/products')
 const UserModel = require('../models/users')
+const DealerModel = require('../models/dealerDetails')
 
 const AppError = require('../utils/AppError')
 const mongoose = require('mongoose')
 
 const { Upload } = require("@aws-sdk/lib-storage");
 const { S3Client, S3 } = require("@aws-sdk/client-s3");
+const jwt = require('jsonwebtoken')
 
 const fs = require('fs')
 
 module.exports = {
+    login: async (req, res) => {
+        const {name, password } = req.body
+
+        await mongoose.connect(`mongodb://127.0.0.1:/ecommerce-api`);
+
+        const Dealer = await DealerModel.findOne({name: name})
+        
+        if (!Dealer) {
+            throw new AppError('User Not Found', 'User Not Found', 404)
+        } 
+
+        const dealerId = Dealer._id.toString()       
+
+        if(dealerId !== password) {
+            throw new AppError("User Password doesn't match", "Password doesn't match", 401)
+        }
+
+        const token = jwt.sign({ id: dealerId, username: Dealer.name }, process.env.JWT_SECRET, { expiresIn: '365d' }) 
+
+        await mongoose.connection.close()
+
+        res.status(200).json({ 
+            status: 'success',
+            message: 'User Logged In successfully',
+            data: {
+                token
+            }
+        })  
+    },
+
     addProduct: async (req, res) => {
 
         const imageTitle = req.file.filename
@@ -48,16 +80,16 @@ module.exports = {
             const addProduct = await ProductModel.create({ title, description, price, category, image: result.Location })
 
             await mongoose.connection.close()
-            
+
             await fs.unlinkSync(imagePath);
-            
+
             return res.status(201).json({
                 status: 'success',
                 message: 'Product Added successfully',
                 data: addProduct
             })
         }
-        
+
         const addProduct = await ProductModel.create({ title, description, price, category })
 
 

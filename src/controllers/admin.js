@@ -14,10 +14,10 @@ module.exports = {
             })
         }
 
-        await mongoose.connect(process.env.MONGODB_URL);
+        await mongoose.connect(process.env.MONGODB_URL+'/ecommerce-api');
 
         const checkDealer = await DealerDetails.findOne({name})
-
+        console.log(checkDealer)
         if (checkDealer) {
             return res.status(409).json({
                 status: 'failure',
