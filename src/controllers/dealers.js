@@ -15,7 +15,7 @@ module.exports = {
     login: async (req, res) => {
         const {name, password } = req.body
 
-        await mongoose.connect(`mongodb://127.0.0.1:/ecommerce-api`);
+        await mongoose.connect(`${process.env.MONGODB_URL}/ecommerce-api`);
 
         const Dealer = await DealerModel.findOne({name: name})
         
