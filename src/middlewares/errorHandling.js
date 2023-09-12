@@ -1,5 +1,6 @@
 const AppError = require("../utils/AppError")
 const mongoose = require('mongoose')
+const logger = require('../utils/winstonLogger')
 
 
 module.exports = {
@@ -7,7 +8,8 @@ module.exports = {
        console.error(error)
         if (error instanceof AppError) {
             await mongoose.connection.close()
-
+            
+            logger.error(error.errorCode)
             return res.status(error.StatusCode).json({
                 status: "failure",
                 message: error.message,
