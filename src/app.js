@@ -1,12 +1,15 @@
 const express = require('express')
-const morgan = require('morgan')
 const helmet = require('helmet')
+const rateLimiter = require('./middlewares/rateLimiter')
+const logger = require('./utils/winstonLogger')
 
 const app = express()
 
+app.use(rateLimiter)
+app.use(helmet())
 app.use(express.json({limit: '5mb'}))
 app.use(express.urlencoded({extended: true, limit: '5mb'}))
-app.use(morgan('dev'))
+// app.use(morgan('dev'))
 app.use(express.static('uploads'))
 
 const Admin = require('./routers/admin')

@@ -5,11 +5,10 @@ const logger = require('../utils/winstonLogger')
 
 module.exports = {
     ErrorHandler: async (error, req, res, next) => {
-       console.error(error)
         if (error instanceof AppError) {
             await mongoose.connection.close()
             
-            logger.error(error.errorCode)
+            logger.error(error.ErrorCode)
             return res.status(error.StatusCode).json({
                 status: "failure",
                 message: error.message,
