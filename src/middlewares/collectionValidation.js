@@ -11,7 +11,7 @@ module.exports = {
           
             await mongoose.connect(process.env.MONGODB_URL);
            
-            const adminDb = mongoose.connection.db.admin(); // NOTE: Showing "Database does not exist with the API key provided" debug apikey
+            const adminDb = mongoose.connection.db.admin();
             const databases = await adminDb.listDatabases();
             const databaseExists = databases.databases.find(db => db.name === `ecom-${apiKey}`);
             
