@@ -10,7 +10,9 @@ module.exports = {
     registerUser: async (req, res) => {
         const { apiKey, username, email, password } = req.body
 
-        await mongoose.connect(`mongodb://127.0.0.1:/ecom-${apiKey}`);
+        const URL = process.env.MONGODB_URL
+
+        await mongoose.connect(`${URL}/ecom-${apiKey}`);
 
         const User = await UserModel.find({ email })
 
@@ -40,7 +42,9 @@ module.exports = {
 
         const { apiKey, email, password } = req.body
 
-        await mongoose.connect(`mongodb://127.0.0.1:/ecom-${apiKey}`);
+        const URL = process.env.MONGODB_URL
+
+        await mongoose.connect(`${URL}/ecom-${apiKey}`);
 
         const User = await UserModel.findOne({ email })
 
