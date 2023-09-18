@@ -27,7 +27,11 @@ const UserSchema = new mongoose.Schema({
             order_id: String,
             payment_id: String
         }
-    ]
+    ],
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }
 })
 
 const User = mongoose.model('users', UserSchema)

@@ -54,7 +54,7 @@ module.exports = {
             throw new AppError('Invalid Credentials', 'Invalid Credentials', 400)
         }
 
-        const token = jwt.sign({ username: User.username }, process.env.JWT_SECRET, { expiresIn: '365d' })
+        const token = jwt.sign({ username: User.username, email: User.email, apiKey }, process.env.JWT_SECRET, { expiresIn: '3d' })
 
         await mongoose.connection.close()
 
@@ -69,12 +69,12 @@ module.exports = {
     },
 
     addToCart: async (req, res) => {
-        
+
         const { productId } = req.body
         const { id } = req.params
 
         const addToCart = await UserModel.updateOne({ _id: id }, { $addToSet: { cart: productId } })
-     
+
         if (addToCart.modifiedCount === 0) {
             throw new AppError(`Product Already Exist`, 'Product already Exist!', 404)
         }
@@ -85,6 +85,21 @@ module.exports = {
             status: 'success',
             message: 'Product added to the cart successfully'
         })
+    },
+
+    viewItemsInCart: async (req, res) => {
+        const { id } = req.params
+        const products = await UserModel.findById(id).populate('cart').select('-username -password -email -wishlist -isAdmin -orders')
+        await mongoose.connection.close()
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Cart items fetched successfully',
+            data: {
+                products
+            }
+        })
+
     },
 
     removeFromCart: async (req, res) => {
@@ -107,26 +122,40 @@ module.exports = {
     },
 
     addToWishlist: async (req, res) => {
-            
-            const { productId } = req.body
-            const { id } = req.params
-    
-            const addToWishlist = await UserModel.updateOne({ _id: id }, { $addToSet: { wishlist: productId } })
-    
-            if (addToWishlist.modifiedCount === 0) {
-                throw new AppError(`Product already exist`, 'Product already exist!', 404)
+        const { productId } = req.body
+        const { id } = req.params
+
+        const addToWishlist = await UserModel.updateOne({ _id: id }, { $addToSet: { wishlist: productId } })
+
+        if (addToWishlist.modifiedCount === 0) {
+            throw new AppError(`Product already exist`, 'Product already exist!', 404)
+        }
+
+        await mongoose.connection.close()
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Product added to the wishlist successfully'
+        })
+    },
+
+    viewItemsInWishlist: async (req, res) => {
+        const { id } = req.params
+        const products = await UserModel.findById(id).populate('wishlist').select('-username -password -email -cart -isAdmin -orders')
+        await mongoose.connection.close()
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Wishlist items fetched successfully',
+            data: {
+                products
             }
-    
-            await mongoose.connection.close()
-    
-            res.status(200).json({
-                status: 'success',
-                message: 'Product added to the wishlist successfully'
-            })
+        })
+
     },
 
     removeFromWishlist: async (req, res) => {
-        
+
         const { productId } = req.body
         const { id } = req.params
 

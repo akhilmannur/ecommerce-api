@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const AppError = require('../utils/AppError')
 
 const verifyToken = async (req, res, next) => {
 

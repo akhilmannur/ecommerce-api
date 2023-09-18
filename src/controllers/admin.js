@@ -17,7 +17,7 @@ module.exports = {
         await mongoose.connect(process.env.MONGODB_URL+'/ecommerce-api');
 
         const checkDealer = await DealerDetails.findOne({name})
-        console.log(checkDealer)
+     
         if (checkDealer) {
             return res.status(409).json({
                 status: 'failure',
@@ -26,7 +26,8 @@ module.exports = {
         }
 
         const createDealer = await DealerDetails.create({
-            name
+            name,
+            email
         })
 
         await mongoose.connection.close()
@@ -38,7 +39,8 @@ module.exports = {
         const createAnUser = await User.create({
             username: 'admin',
             password: dealerApiKey,
-            email
+            email,
+            isAdmin: true
         })
 
         await mongoose.connection.close()

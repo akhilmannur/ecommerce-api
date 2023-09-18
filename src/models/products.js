@@ -16,7 +16,8 @@ const mongoose = require('mongoose')
       type: String
     },
     category: {
-      type: String
+      type: String,
+      required: true
     }
   })
   

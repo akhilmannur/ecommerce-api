@@ -13,11 +13,11 @@ const fs = require('fs')
 
 module.exports = {
     login: async (req, res) => {
-        const {name, password } = req.body
+        const {email, password } = req.body
 
         await mongoose.connect(`${process.env.MONGODB_URL}/ecommerce-api`);
 
-        const Dealer = await DealerModel.findOne({name: name})
+        const Dealer = await DealerModel.findOne({email: email})
         
         if (!Dealer) {
             throw new AppError('User Not Found', 'User Not Found', 404)
@@ -28,8 +28,8 @@ module.exports = {
         if(dealerId !== password) {
             throw new AppError("User Password doesn't match", "Password doesn't match", 401)
         }
-
-        const token = jwt.sign({ id: dealerId, username: Dealer.name }, process.env.JWT_SECRET, { expiresIn: '365d' }) 
+        
+        const token = jwt.sign({ apiKey: dealerId, username: Dealer.name, email: Dealer.email }, process.env.JWT_SECRET, { expiresIn: '3d' }) 
 
         await mongoose.connection.close()
 
@@ -191,7 +191,7 @@ module.exports = {
 
     findAllUsers: async (req, res) => {
 
-        const users = await UserModel.find({ ...req.query }).select('-password')
+        const users = await UserModel.find({ ...req.query, isAdmin: false }).select('-password')
 
         if (!users) {
             throw new AppError('Users are empty in the Collection.', 'There are no users.', 404)
