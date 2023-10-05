@@ -44,11 +44,11 @@ module.exports = {
 
     addProduct: async (req, res) => {
 
-        const imageTitle = req.file.filename
-        const imagePath = req.file.path
+        const imageTitle = req.file?.filename
+        const imagePath = req.file?.path
 
         const { title, price, description, category } = req.body
-
+        console.log(imagePath, 'Hola')
         if (imagePath) {
             const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
             const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
