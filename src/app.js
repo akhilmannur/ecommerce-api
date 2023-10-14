@@ -11,7 +11,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 if (isDevelopment) {
   app.use(morgan('dev'));
 }
-
+//TODO: use joi to validate the body.
 app.use(rateLimiter)
 app.use(cors())
 app.use(helmet())

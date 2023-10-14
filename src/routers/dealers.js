@@ -15,7 +15,7 @@ router.route('/products')
 
 router.route('/products/:id')
     .get(verifyToken, collectionValidation, tryCatch(Dealer.getAProduct))
-    .patch(verifyToken, collectionValidation, tryCatch(Dealer.updateAProduct))
+    .patch(verifyToken, collectionValidation, upload.single('img'), tryCatch(Dealer.updateAProduct))
     .delete(verifyToken, collectionValidation, tryCatch(Dealer.deleteAProduct))
 
 router.route('/users')
