@@ -5,8 +5,8 @@ const logger = require('../utils/winstonLogger')
 
 module.exports = {
     ErrorHandler: async (error, req, res, next) => {
-     
-        if (error instanceof AppError) { //NOTE: Add correct error response. There is something issue in here.
+        
+        if (error instanceof AppError) {
             await mongoose.connection.close()
             
             logger.error(error.ErrorCode)
@@ -18,6 +18,7 @@ module.exports = {
         }
 
         await mongoose.connection.close()
+        logger.error(error.message)
         return res.status(500).json({
             status: "failure",
             message: "Something went Wrong",

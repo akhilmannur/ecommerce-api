@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const AppError = require('../utils/AppError')
+const logger = require('../utils/winstonLogger')
 
 const verifyToken = async (req, res, next) => {
 
@@ -7,9 +8,11 @@ const verifyToken = async (req, res, next) => {
 
     const token = header && header.split(' ')[1]
     if (!token) {
+        logger.error('Token is not provided.')
         return res.status(401).json({
             status: 'failure',
-            message: 'Token is not provided'
+            message: 'Token is not provided. Please provide a token.',
+            error_message: 'Token is not provided.'
         })
     }
 
@@ -19,10 +22,12 @@ const verifyToken = async (req, res, next) => {
        
         next()
     } catch (error) {
+        logger.error(`Token Id: ${token} is not valid.`)
         return res.status(403).json({
             status: 'failure',
-            message: 'Invalid Token'
-        })
+            message: 'Invalid Token',
+            error_message: `Token Id: ${token} is not valid.`
+        })   
     }
 }
 

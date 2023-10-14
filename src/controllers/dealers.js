@@ -48,7 +48,7 @@ module.exports = {
         const imagePath = req.file?.path
 
         const { title, price, description, category } = req.body
-        console.log(imagePath, 'Hola')
+        
         if (imagePath) {
             const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
             const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
@@ -106,7 +106,7 @@ module.exports = {
 
         const product = await ProductModel.find()
 
-        if (!product) {
+        if (product.length === 0) {
             throw new AppError('Products are empty in the Collection.', 'There are no products.', 404)
         }
 
