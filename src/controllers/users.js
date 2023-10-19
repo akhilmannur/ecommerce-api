@@ -27,11 +27,13 @@ module.exports = {
         await mongoose.connection.close()
 
         const token = jwt.sign({ username: User.username, email: User.email, apiKey }, process.env.JWT_SECRET, { expiresIn: '365d' })
+        const userId = User._id.toString()
 
         res.status(201).json({
             status: 'success',
             message: 'User Added successfully',
             data: {
+                userId,
                 token
             }
         })
@@ -59,13 +61,15 @@ module.exports = {
         }
 
         const token = jwt.sign({ username: User.username, email: User.email, apiKey }, process.env.JWT_SECRET, { expiresIn: '3d' })
-
+    
+        const userId = User._id.toString()
         await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',
             message: 'User Logged In successfully',
             data: {
+                userId,
                 token
             }
         })
