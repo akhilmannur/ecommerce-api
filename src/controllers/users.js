@@ -26,7 +26,7 @@ module.exports = {
 
         await mongoose.connection.close()
 
-        const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '365d' })
+        const token = jwt.sign({ username: User.username, email: User.email, apiKey }, process.env.JWT_SECRET, { expiresIn: '365d' })
 
         res.status(201).json({
             status: 'success',
@@ -164,7 +164,7 @@ module.exports = {
         const { id } = req.params
 
         const removeFromWishlist = await UserModel.updateOne({ _id: id }, { $pull: { wishlist: productId } })
-
+        console.log(id, productId)
         if (removeFromWishlist.modifiedCount === 0) {
             throw new AppError(`Product already Exist`, 'Product Already Exist!', 404)
         }
