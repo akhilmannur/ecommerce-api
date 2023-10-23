@@ -11,10 +11,10 @@ router.route('/login')
 
 router.route('/products')
     .post(verifyToken, collectionValidation, upload.single('img'), tryCatch(Dealer.addProduct))
-    .get(verifyToken, collectionValidation, tryCatch(Dealer.getAllProducts))
+    .get(tryCatch(Dealer.getAllProducts))
 
 router.route('/products/:id')
-    .get(verifyToken, collectionValidation, tryCatch(Dealer.getAProduct))
+    .get(tryCatch(Dealer.getAProduct))
     .patch(verifyToken, collectionValidation, upload.single('img'), tryCatch(Dealer.updateAProduct))
     .delete(verifyToken, collectionValidation, tryCatch(Dealer.deleteAProduct))
 
