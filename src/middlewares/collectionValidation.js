@@ -7,8 +7,9 @@ const switchDB = require('../services/switchDB')
 module.exports = {
     collectionValidation: async (req, res, next) => {
         try {
-            const apiKey = req.body.apiKey ?? req.user.apiKey
 
+            const apiKey = req.body?.apiKey ?? req.user?.apiKey ?? req.header('apiKey')
+            
             await mongoose.connect(process.env.MONGODB_URL);
            
             const adminDb = mongoose.connection.db.admin();
