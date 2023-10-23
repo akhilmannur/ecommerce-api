@@ -11,7 +11,7 @@ router.route('/login')
 
 router.route('/products')
     .post(verifyToken, collectionValidation, upload.single('img'), tryCatch(Dealer.addProduct))
-    .get(tryCatch(Dealer.getAllProducts))
+    .get(collectionValidation, tryCatch(Dealer.getAllProducts))
 
 router.route('/products/:id')
     .get(tryCatch(Dealer.getAProduct))
