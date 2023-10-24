@@ -27,7 +27,8 @@ module.exports = {
         await mongoose.connection.close()
 
         const token = jwt.sign({ username: User.username, email: User.email, apiKey }, process.env.JWT_SECRET, { expiresIn: '365d' })
-        const userId = User._id.toString()
+        console.log('userId')
+        const userId = AddUser._id.toString()
 
         res.status(201).json({
             status: 'success',
@@ -78,11 +79,11 @@ module.exports = {
 
     addToCart: async (req, res) => {
 
-        const { productId } = req.body
-        const { id } = req.params
-
+        const { productId } = req.params
+        const { id } = req.params        
         const addToCart = await UserModel.updateOne({ _id: id }, { $addToSet: { cart: productId } })
-
+        const da = await UserModel.findById(id)
+        console.log(da)
         if (addToCart.modifiedCount === 0) {
             throw new AppError(`Product Already Exist`, 'Product already Exist!', 404)
         }
@@ -112,7 +113,7 @@ module.exports = {
 
     removeFromCart: async (req, res) => {
 
-        const { productId } = req.body
+        const { productId } = req.params
         const { id } = req.params
 
         const removeFromCart = await UserModel.updateOne({ _id: id }, { $pull: { cart: productId } })
@@ -130,7 +131,7 @@ module.exports = {
     },
 
     addToWishlist: async (req, res) => {
-        const { productId } = req.body
+        const { productId } = req.params
         const { id } = req.params
 
         const addToWishlist = await UserModel.updateOne({ _id: id }, { $addToSet: { wishlist: productId } })
@@ -164,11 +165,11 @@ module.exports = {
 
     removeFromWishlist: async (req, res) => {
 
-        const { productId } = req.body
+        const { productId } = req.params
         const { id } = req.params
 
         const removeFromWishlist = await UserModel.updateOne({ _id: id }, { $pull: { wishlist: productId } })
-        console.log(id, productId)
+        
         if (removeFromWishlist.modifiedCount === 0) {
             throw new AppError(`Product already Exist`, 'Product Already Exist!', 404)
         }
