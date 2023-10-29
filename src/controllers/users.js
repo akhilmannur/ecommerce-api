@@ -171,7 +171,7 @@ module.exports = {
         const removeFromWishlist = await UserModel.updateOne({ _id: id }, { $pull: { wishlist: productId } })
         
         if (removeFromWishlist.modifiedCount === 0) {
-            throw new AppError(`Product already Exist`, 'Product Already Exist!', 404)
+            throw new AppError(`Product already Removed from wishlist.`, 'Product Already removed from wishlist!', 404)
         }
 
         await mongoose.connection.close()
