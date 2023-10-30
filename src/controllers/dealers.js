@@ -99,10 +99,6 @@ module.exports = {
         const dealerId = req.body.dealerId
         const product = await ProductModel.find({dealerId})
 
-        if (product.length === 0) {
-            throw new AppError('Products are empty in the Collection.', 'There are no products.', 404)
-        }
-
         res.status(200).json({
             status: 'success',
             message: 'Successfully Fetched All Products',
