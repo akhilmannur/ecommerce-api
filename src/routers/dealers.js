@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Dealer = require('../controllers/dealers')
 const { tryCatch } = require('../middlewares/tryCatch')
-const { collectionValidation } = require('../middlewares/collectionValidation')
+const { accessKeyCheck } = require('../middlewares/accessKeyCheck')
 const  verifyToken  = require('../middlewares/tokenVerify')
 const upload = require('../middlewares/multer')
 
@@ -10,19 +10,19 @@ router.route('/login')
      .post(tryCatch(Dealer.login))
 
 router.route('/products')
-    .post(verifyToken, collectionValidation, upload.single('img'), tryCatch(Dealer.addProduct))
-    .get(collectionValidation, tryCatch(Dealer.getAllProducts))
+    .post(verifyToken, upload.single('img'), tryCatch(Dealer.addProduct))
+    .get(accessKeyCheck, tryCatch(Dealer.getAllProducts))
 
 router.route('/products/:id')
-    .get(collectionValidation, tryCatch(Dealer.getAProduct))
-    .patch(verifyToken, collectionValidation, upload.single('img'), tryCatch(Dealer.updateAProduct))
-    .delete(verifyToken, collectionValidation, tryCatch(Dealer.deleteAProduct))
+    .get(accessKeyCheck, tryCatch(Dealer.getAProduct))
+    .patch(verifyToken, upload.single('img'), tryCatch(Dealer.updateAProduct))
+    .delete(verifyToken, tryCatch(Dealer.deleteAProduct))
 
 router.route('/users')
-    .get(verifyToken, collectionValidation, tryCatch(Dealer.findAllUsers)) 
+    .get(verifyToken, tryCatch(Dealer.findAllUsers)) 
 
 router.route('/users/:id')
-    .get(verifyToken, collectionValidation, tryCatch(Dealer.findAUser))
-    .delete(verifyToken, collectionValidation, tryCatch(Dealer.deleteAUser))
+    .get(verifyToken, tryCatch(Dealer.findAUser))
+    .delete(verifyToken, tryCatch(Dealer.deleteAUser))
 
 module.exports = router   

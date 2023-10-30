@@ -8,11 +8,7 @@ const UserModel = require('../models/users')
 module.exports = {
 
     registerUser: async (req, res) => {
-        const { apiKey, username, email, password } = req.body
-
-        const URL = process.env.MONGODB_URL
-
-        await mongoose.connect(`${URL}/ecom-${apiKey}`);
+        const { dealerId, username, email, password } = req.body
 
         const User = await UserModel.find({ email })
 
@@ -22,12 +18,10 @@ module.exports = {
 
         const hashedPass = await bcrypt.hash(password, 10)
 
-        const AddUser = await UserModel.create({ username, email, password: hashedPass })
+        const AddUser = await UserModel.create({ username, email, password: hashedPass, dealerId })
 
-        await mongoose.connection.close()
+        const token = jwt.sign({ username: User.username, email: User.email, dealerId }, process.env.JWT_SECRET, { expiresIn: '365d' })
 
-        const token = jwt.sign({ username: User.username, email: User.email, apiKey }, process.env.JWT_SECRET, { expiresIn: '365d' })
-        console.log('userId')
         const userId = AddUser._id.toString()
 
         res.status(201).json({
@@ -43,11 +37,7 @@ module.exports = {
 
     loginUser: async (req, res) => {
 
-        const { apiKey, email, password } = req.body
-
-        const URL = process.env.MONGODB_URL
-
-        await mongoose.connect(`${URL}/ecom-${apiKey}`);
+        const { dealerId, email, password } = req.body
 
         const User = await UserModel.findOne({ email })
 
@@ -61,10 +51,9 @@ module.exports = {
             throw new AppError('Invalid Credentials', 'Invalid Credentials', 400)
         }
 
-        const token = jwt.sign({ username: User.username, email: User.email, apiKey }, process.env.JWT_SECRET, { expiresIn: '3d' })
+        const token = jwt.sign({ username: User.username, email: User.email, dealerId }, process.env.JWT_SECRET, { expiresIn: '3d' })
     
         const userId = User._id.toString()
-        await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',
@@ -80,15 +69,13 @@ module.exports = {
     addToCart: async (req, res) => {
 
         const { productId } = req.params
-        const { id } = req.params        
-        const addToCart = await UserModel.updateOne({ _id: id }, { $addToSet: { cart: productId } })
-        const da = await UserModel.findById(id)
-        console.log(da)
+        const { id } = req.params  
+        const {dealerId} = req.user      
+        const addToCart = await UserModel.updateOne({ _id: id, dealerId }, { $addToSet: { cart: productId } })
+
         if (addToCart.modifiedCount === 0) {
             throw new AppError(`Product Already Exist`, 'Product already Exist!', 404)
         }
-
-        await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',
@@ -98,8 +85,8 @@ module.exports = {
 
     viewItemsInCart: async (req, res) => {
         const { id } = req.params
-        const products = await UserModel.findById(id).populate('cart').select('-username -password -email -wishlist -isAdmin -orders')
-        await mongoose.connection.close()
+        const {dealerId} = req.user
+        const products = await UserModel.find({_id: id, dealerId}).populate('cart').select('-username -password -email -wishlist -isAdmin -orders -dealerId')
 
         res.status(200).json({
             status: 'success',
@@ -115,14 +102,13 @@ module.exports = {
 
         const { productId } = req.params
         const { id } = req.params
+        const {dealerId} = req.user
 
-        const removeFromCart = await UserModel.updateOne({ _id: id }, { $pull: { cart: productId } })
+        const removeFromCart = await UserModel.updateOne({ _id: id, dealerId }, { $pull: { cart: productId } })
 
         if (removeFromCart.modifiedCount === 0) {
             throw new AppError(`Product Not Found`, 'Product Not Found!', 404)
         }
-
-        await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',
@@ -133,14 +119,13 @@ module.exports = {
     addToWishlist: async (req, res) => {
         const { productId } = req.params
         const { id } = req.params
+        const {dealerId} = req.user
 
-        const addToWishlist = await UserModel.updateOne({ _id: id }, { $addToSet: { wishlist: productId } })
+        const addToWishlist = await UserModel.updateOne({ _id: id,  dealerId}, { $addToSet: { wishlist: productId } })
 
         if (addToWishlist.modifiedCount === 0) {
             throw new AppError(`Product already exist`, 'Product already exist!', 404)
         }
-
-        await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',
@@ -150,8 +135,9 @@ module.exports = {
 
     viewItemsInWishlist: async (req, res) => {
         const { id } = req.params
-        const products = await UserModel.findById(id).populate('wishlist').select('-username -password -email -cart -isAdmin -orders')
-        await mongoose.connection.close()
+        const {dealerId} = req.user
+
+        const products = await UserModel.find({_id: id, dealerId}).populate('wishlist').select('-username -password -email -cart -isAdmin -orders')
 
         res.status(200).json({
             status: 'success',
@@ -167,14 +153,13 @@ module.exports = {
 
         const { productId } = req.params
         const { id } = req.params
+        const {dealerId} = req.user
 
-        const removeFromWishlist = await UserModel.updateOne({ _id: id }, { $pull: { wishlist: productId } })
+        const removeFromWishlist = await UserModel.updateOne({ _id: id, dealerId }, { $pull: { wishlist: productId } })
         
         if (removeFromWishlist.modifiedCount === 0) {
             throw new AppError(`Product already Removed from wishlist.`, 'Product Already removed from wishlist!', 404)
         }
-
-        await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',

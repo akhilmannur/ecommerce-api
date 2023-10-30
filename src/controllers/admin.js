@@ -1,55 +1,46 @@
 const DealerDetails = require('../models/dealerDetails')
 const User = require('../models/users')
+const { customAlphabet } = require('nanoid');
 
 const mongoose = require('mongoose')
 
 module.exports = {
     registerDealer: async (req, res) => {
-        const { name, password, email } = req.body
+        const { name, password, email, adminPassword } = req.body
 
-        if (password !== process.env.ADMIN_PASSWORD) {
+        if (adminPassword !== process.env.ADMIN_PASSWORD) {
             return res.status(401).json({
                 status: 'failure',
                 message: 'Invalid Password'
             })
         }
-
-        await mongoose.connect(process.env.MONGODB_URL+'/ecommerce-api');
-
-        const checkDealer = await DealerDetails.findOne({name})
-     
+        
+        const checkDealer = await DealerDetails.findOne({email})
+        
         if (checkDealer) {
             return res.status(409).json({
                 status: 'failure',
                 message: 'User Already Exist'
             })
         }
+        
+        const nanoid = customAlphabet('1234567890abcdef', 20)
+        const accessKey = nanoid()
 
         const createDealer = await DealerDetails.create({
             name,
-            email
-        })
-
-        await mongoose.connection.close()
-
-        const dealerApiKey = createDealer._id.toString()
-
-        await mongoose.connect(`${process.env.MONGODB_URL}/ecom-${dealerApiKey}`)
-
-        const createAnUser = await User.create({
-            username: 'admin',
-            password: dealerApiKey,
             email,
-            isAdmin: true
+            password,
+            accessKey
         })
 
-        await mongoose.connection.close()
+        const dealerApiKey = createDealer?.accessKey
 
         res.status(201).json({
             status: 'success',
             message: 'Successfully Created a Dealer',
             data: {
-                apiKey: dealerApiKey
+                accessKey: dealerApiKey
             }
         })
     },

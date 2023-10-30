@@ -7,8 +7,6 @@ module.exports = {
     ErrorHandler: async (error, req, res, next) => {
         
         if (error instanceof AppError) {
-            await mongoose.connection.close()
-            
             logger.error(error.ErrorCode)
             return res.status(error.StatusCode).json({
                 status: "failure",
@@ -17,7 +15,6 @@ module.exports = {
             })
         }
 
-        await mongoose.connection.close()
         logger.error(error.message)
         return res.status(500).json({
             status: "failure",

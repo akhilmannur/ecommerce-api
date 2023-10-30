@@ -15,23 +15,19 @@ module.exports = {
     login: async (req, res) => {
         const {email, password } = req.body
 
-        await mongoose.connect(`${process.env.MONGODB_URL}/ecommerce-api`);
-
         const Dealer = await DealerModel.findOne({email: email})
         
         if (!Dealer) {
-            throw new AppError('User Not Found', 'User Not Found', 404)
+            throw new AppError(`email or password Not Match.`, 'email or password Not Match.', 404)
         } 
 
-        const dealerId = Dealer._id.toString()       
-
-        if(dealerId !== password) {
+        if(Dealer.password !== password) {
             throw new AppError("User Password doesn't match", "Password doesn't match", 401)
         }
-        
-        const token = jwt.sign({ apiKey: dealerId, username: Dealer.name, email: Dealer.email }, process.env.JWT_SECRET, { expiresIn: '3d' }) 
 
-        await mongoose.connection.close()
+        const dealerId = Dealer._id.toString() 
+        
+        const token = jwt.sign({ dealerId, username: Dealer.name, email: Dealer.email }, process.env.JWT_SECRET, { expiresIn: '3d' }) 
 
         res.status(200).json({ 
             status: 'success',
@@ -48,6 +44,8 @@ module.exports = {
         const imagePath = req.file?.path
 
         const { title, price, description, category } = req.body
+
+        const {dealerId} = req.user
         
         if (imagePath) {
             const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
@@ -77,9 +75,7 @@ module.exports = {
 
             const result = await upload.done()
 
-            const addProduct = await ProductModel.create({ title, description, price, category, image: result.Location })
-
-            await mongoose.connection.close()
+            const addProduct = await ProductModel.create({ dealerId, title, description, price, category, image: result.Location })
 
             await fs.unlinkSync(imagePath);
 
@@ -90,10 +86,7 @@ module.exports = {
             })
         }
 
-        const addProduct = await ProductModel.create({ title, description, price, category })
-
-
-        await mongoose.connection.close()
+        const addProduct = await ProductModel.create({ dealerId, title, description, price, category })
 
         res.status(201).json({
             status: 'success',
@@ -103,14 +96,12 @@ module.exports = {
     },
 
     getAllProducts: async (req, res) => {
-
-        const product = await ProductModel.find()
+        const dealerId = req.body.dealerId
+        const product = await ProductModel.find({dealerId})
 
         if (product.length === 0) {
             throw new AppError('Products are empty in the Collection.', 'There are no products.', 404)
         }
-
-        await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',
@@ -122,14 +113,15 @@ module.exports = {
     getAProduct: async (req, res) => {
 
         const productId = req.params.id
+        const dealerId = req.body.dealerId
 
-        const product = await ProductModel.findById({ _id: productId })
+        const fetchProduct = await ProductModel.find({ _id: productId, dealerId })
 
-        if (!product) {
+        if (fetchProduct.length === 0) {
             throw new AppError('Product Id Not Found in The Database', 'Product Not Found', 404)
         }
 
-        await mongoose.connection.close()
+        const product = fetchProduct[0]
 
         res.json({
             status: 'success',
@@ -140,6 +132,8 @@ module.exports = {
     },
 
     updateAProduct: async (req, res) => {
+
+        const {dealerId} = req.user
 
         const dataToUpdate = {
             title: req.body.title,
@@ -152,16 +146,14 @@ module.exports = {
         const productId = req.params.id
 
         const updatedProduct = await ProductModel.findOneAndUpdate(
-            { _id: productId },
+            { _id: productId, dealerId },
             dataToUpdate,
             { new: true } // This option returns the updated document
         )
 
         if (!updatedProduct) {
-            throw new AppError('Product Id Not Found in The Database', 'Product Not Found', 404)
+            throw new AppError(`Product Id: ${productId} Not Found in The Database`, 'Product Not Found', 404)
         }
-
-        await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',
@@ -174,13 +166,13 @@ module.exports = {
 
         const productId = req.params.id
 
-        const product = await ProductModel.deleteOne({ _id: productId })
+        const {dealerId} = req.user
+
+        const product = await ProductModel.deleteOne({ _id: productId, dealerId })
 
         if (product.deletedCount === 0) {
             throw new AppError('Product Id Not Found in The Database', 'Product Not Found', 404)
         }
-
-        await mongoose.connection.close()
 
         res.json({
             status: 'success',
@@ -190,14 +182,9 @@ module.exports = {
     },
 
     findAllUsers: async (req, res) => {
-
-        const users = await UserModel.find({ ...req.query, isAdmin: false }).select('-password')
-
-        if (!users) {
-            throw new AppError('Users are empty in the Collection.', 'There are no users.', 404)
-        }
-
-        await mongoose.connection.close()
+        const {dealerId} = req.user
+        
+        const users = await UserModel.find({ dealerId }).select('-password')
 
         res.status(200).json({
             status: 'success',
@@ -207,37 +194,29 @@ module.exports = {
     },
 
     findAUser: async (req, res) => {
-
+        const {dealerId} = req.user
         const { id } = req.params
 
-        const users = await UserModel.findById(id).select('-password')
-
-        if (!users) {
-            throw new AppError('User Id Not Found in The Database', 'User Not Found', 404)
-        }
-
-        await mongoose.connection.close()
-
+        const users = await UserModel.find({_id: id, dealerId}).select('-password')
+        
         res.status(200).json({
             status: 'success',
             message: 'Successfully Fetched A User',
             data: users
         })
-
     },
 
     deleteAUser: async (req, res) => {
 
         const { id } = req.params
+        const {dealerId} = req.user 
 
-        const users = await UserModel.deleteOne({ _id: id })
+        const users = await UserModel.deleteOne({ _id: id, dealerId })
 
 
         if (users.deletedCount === 0) {
-            throw new AppError('User Id Not Found in The Database', 'User Not Found', 404)
+            throw new AppError(`User Id: ${id} Not Found in The Database`, 'User Not Found in Database', 404)
         }
-
-        await mongoose.connection.close()
 
         res.status(200).json({
             status: 'success',

@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const Admin = require('../controllers/admin')
-const {collectionValidation} = require('../middlewares/collectionValidation')
+const Admin = require('../controllers/admin.js')
 const {tryCatch} = require('../middlewares/tryCatch')
 
 router.route('/create-dealer')
