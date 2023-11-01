@@ -50,5 +50,9 @@ module.exports = {
             status: 'Success',
             message: 'API tested Successfully!'
         })
+    },
+
+    githubWebhook: (req, res) => {
+        console.log(req.body)
     }
 }

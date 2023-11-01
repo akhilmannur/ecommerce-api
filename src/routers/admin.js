@@ -9,4 +9,7 @@ router.route('/create-dealer')
 router.route('/test')
 .get(tryCatch(Admin.test))
 
+router.route('/github-webhook')
+.post(tryCatch(Admin.githubWebhook))
+
 module.exports = router
