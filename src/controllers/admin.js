@@ -53,6 +53,6 @@ module.exports = {
     },
 
     githubWebhook: (req, res) => {
-        console.log(req.body)
+        console.log(req.headers.X-Hub-Signature)
     }
 }
