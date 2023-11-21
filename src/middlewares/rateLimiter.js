@@ -6,6 +6,7 @@ const rateLimiter = rateLimit({
   message: 'You have exceeded the number of API calls in 15 Minutes limit!', 
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true
 })
 
 module.exports = rateLimiter
