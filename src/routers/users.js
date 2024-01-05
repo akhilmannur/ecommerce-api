@@ -5,9 +5,14 @@ const { tryCatch } = require("../middlewares/tryCatch");
 const { accessKeyCheck } = require("../middlewares/accessKeyCheck");
 const verifyToken = require("../middlewares/tokenVerify");
 
-router.route("/users/register").post(accessKeyCheck, tryCatch(Users.registerUser));
+router
+  .route("/users/register")
+  .post(accessKeyCheck, tryCatch(Users.registerUser));
 
 router.route("/users/login").post(accessKeyCheck, tryCatch(Users.loginUser));
+router.route("/users/forgotpassword").post(tryCatch(Users.forgotPassword));
+router.route("/users/changepassword").post(tryCatch(Users.changePassword));
+router.route("/users/goooglelogin").post(tryCatch(Users.googleLogin));
 
 router
   .route("/users/:id/cart")

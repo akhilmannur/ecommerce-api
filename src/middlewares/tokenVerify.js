@@ -6,8 +6,8 @@ const verifyToken = async (req, res, next) => {
 
     const header = req.header('Authorization')
 
-    const token = header && header.split(' ')[1]
-    
+    const token = header && header.split(' ')[1]  
+      
     if (!token) {
         logger.error('Token is not provided.')
         return res.status(401).json({
